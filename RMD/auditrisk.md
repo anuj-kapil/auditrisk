@@ -250,7 +250,7 @@ The re-written code has been maintained at github:
 
 Adopt one style for coding and consistently use it across the code.
 Follow one set of naming conventions and avoid giving useless and random
-names.
+names. It makes the code easy to understand.
 
 Sample names and style in old code:
 
@@ -294,91 +294,319 @@ data <- data[c(
 )]
 ```
 
-**Defensive Programming**
+**Use a package management tool**
 
-  - Assert statement was introduced to interrupt the execution early in
-    case of input inconsistencies. This helps in building a fail-fast
-    system and catches errors earlier than later and saves time and
-    computation Assertions can be built into the code to fail fast in
-    case of errors. This will save time and computation.
-
-The following sample assertion was added in code:
-
-  - Functional Programming The problem can be broken down into smaller
-    chunks of problems and repetitive code can be converted into a
-    function to reduce the chances of introducing errors and make the
-    program more readable
-
-  - Documentation While creating a function, it is essential to document
-    what that function does and what input it takes and what to expect
-    as an output from function and if possible include some examples of
-    function usage. The roxygen2 package in R converts such
-    documentation into user manual which is available as function help.
-
-A sample documentation is shown below:
-
-  - Automate test for your functions While writing functions, a
-    developer often tests the functions with some sample inputs. Record
-    those sample tests into a function and run them everytime some makes
-    a change to the function. This ensures no one breaks the existing
-    functionality of the function.
-
-Sample test:
-
-  - Record the version of the packages used in the R code Dependent
-    Packages are continuously developed and newer versions are often
-    susceptible of breaking the existing functionality in how you have
-    implemented that package. Packrat in R is used to maintain a
-    snapshot of the dependent packages loaded
-
-Packrat
-
-packrat is a package for managing R packages. The basic idea is that
+It is essential to record the version of the packages used in the R
+code. Dependent packages are continuously developed and newer versions
+are often susceptible of breaking the functionality of the code in which
+they are imported. **packrat** in R is used to maintain a snapshot of
+the dependent packages loaded in your project. The basic idea is that
 instead of using the default location to install packages that are
 shared across all R code, each project gets its own private library of
 packages. That way, package versions are independent from project to
-project. When you want to share a project with other collaborators, you
-may want to ensure everyone is working with the same environment –
-otherwise, code in the project may unexpectedly fail to run because of
-changes in behavior between different versions of the packages in use.
-You can use renv to help make this possible. When using renv, the
-packages used in your project will be recorded into a lockfile,
-renv.lock. Because renv.lock records the exact versions of R packages
-used within a project, if you share that file with your collaborators,
-they will be able to use renv::restore() to install exactly those
-packages into their own library. This implies the following workflow for
-collaboration:
+project.
 
-Sample snapshot and restore
+When you want to share a project with other collaborators, you may want
+to ensure everyone is working with the same environment – otherwise,
+code in the project may unexpectedly fail to run because of changes in
+behavior between different versions of the packages in use. You can use
+**packrat** to help make this possible.
 
-  - Reproducibility
+When using **packrat**, the packages used in your project will be
+recorded into a lockfile, ‘packrat.lock’. Because ‘packrat.lock’ records
+the exact versions of R packages used within a project, if you share
+that file with your collaborators, they will be able to use
+packrat::restore() to install exactly those packages into their own
+library.
 
-Containers can be used to create a reproducible version of your
-code/package.
+Sample packrat snapshot
 
-Docker image with the snapshot was created first using the base image of
-rocker/studio which has all the necessary libraries run R and rStudio
-ide and on top of that we have installed all the dependent packages
-required for our project. This image is then configured in GitHub
-continuous integration workflow to regularly update with our project
-package on each push to the repository.
+``` r
+# Initialize packrat
+packrat::init(
+  infer.dependencies = FALSE,
+  enter = TRUE,
+  restart = FALSE
+)
 
-This could be configured differently to manage any updates to dependent
-packages in our project. Let assume someone adds a dependent package in
-our project, then this solution won’t work as our base Docker image is a
-static snapshot of all the dependent packages that our project needs
-today. This defeats the purpose of using packrat as on each build of
-package the packrat takes a new snapshot of the dependent packages which
-isn’t getting updated in the project base Docker image. But it can be
-configured to do the snapshot restore on each push to the repository.
+# First, Let's install all the packages that are required in the project
+
+# Second, Take snapshot of all the loaded packages
+packrat::snapshot(
+  snapshot.sources = FALSE,
+  ignore.stale = TRUE,
+  infer.dependencies = FALSE
+)
+```
+
+The above code automatically updates the ‘packrat.lock’ file and anyone
+who hase this ‘packrat.lock’ and **packrat** package installed on their
+system, can restore the snapshot from ‘packrat.lock’ file.
+
+Sample packrat restore
+
+``` r
+# Restore packages using the 'packrat.lock' file
+packrat::restore()
+```
+
+**Functional Programming**
+
+Any problem can be broken down into smaller chunks of problems and
+functions can be written to solve those chunks of problems. Any
+repetitive code can be converted into a function which helps reduce the
+chances of introducing errors and makes the program more readable.
+
+Sample repetitive code in old source:  
+The below code was written for each of the 33 variables/features to plot
+their histograms and box plots.
+
+``` r
+##### Histogram and Box Plots #####
+
+png(height=3000, width=3000, pointsize=40, file="hist_boxplot_indvarP1_P4.png")
+par(mfrow=c(4,2))
+
+hist(data[, 3], main = "Histogram of P1", xlab="Physiological 1", ylab="Frequency", col = "blue")
+boxplot(data[, 3], main = "Boxplot of P1", xlab="Physiological 1", col = "blue")
+
+hist(data[, 4], main = "Histogram of P2", xlab="Physiological 2", ylab="Frequency", col = "blue")
+boxplot(data[, 4], main = "Boxplot of P2", xlab="Physiological 2", col = "blue")
+
+hist(data[, 5], main = "Histogram of P3", xlab="Physiological 3", ylab="Frequency", col = "blue")
+boxplot(data[, 5], main = "Boxplot of P3", xlab="Physiological 3", col = "blue")
+
+hist(data[, 6], main = "Histogram of P4", xlab="Physiological 4", ylab="Frequency", col = "blue")
+boxplot(data[, 6], main = "Boxplot of P4", xlab="Physiological 4", col = "blue")
+
+dev.off()
+```
+
+The repetitive code turned into a function:  
+The code looks more cleaner and easier to understand. Provides
+consistent output on each invocation. Moreover, now there is less scope
+of introducing errors.
+
+``` r
+##### Histogram and Box Plots #####
+
+# Function to plot the histogram and box plots 
+# Plots for a particular column (x) that exists in the data.frame (dat)
+hist_box_plots <- function(dat, columnname) {
+  hist(dat[, columnname], main = paste0("Histogram of ", columnname), xlab = columnname, ylab = "Frequency", col = "blue")
+  boxplot(dat[, columnname], main = paste0("Boxplot of ", columnname), xlab = columnname, col = "blue")
+}
+# List of all variables for which we need histograms and box plots
+variables <- c(
+  "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8",
+  "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11",
+  "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11"
+)
+
+# The following statement are to set the graphics to be displayed in a particular order
+# This below statement tells the graphic engine to display the four images on one page
+layout_matrix <- matrix(c(1:4), nrow = 2, ncol = 2, byrow = T)
+layout(mat = layout_matrix)
+
+# This function basically loops all the variables and invokes hist_box_plots for each one of them
+# Prints the histogram for all the variables selected above
+lapply(variables, hist_box_plots, dat = data)
+```
+
+**Defensive Programming**
+
+Assert statement was introduced to interrupt the code execution early in
+case of input inconsistencies. This helps in building a fail-fast system
+and catches errors sooner than later and saves time and computation. It
+is highly recommended to add assertion in the code as it provides
+quality assurance and prevents inconsistencies in the results. It is
+better to error the program than to produce irrelavent results.
+
+The following sample *stopifnot* assertion was added in code:  
+This code prevents loading a totally different data saved with the same
+file name.
+
+``` r
+##### Reading the file #####
+data <- read.csv("Data/fordTrain.csv",
+  header = TRUE, stringsAsFactors = FALSE, na.strings = c("NA", ""),
+  strip.white = TRUE, blank.lines.skip = TRUE, skip = 0
+)
+
+required_names <- c(
+  "TrialID", "ObsNum", "P1", "P2", "P3", "P4", "P5",
+  "P6", "P7", "P8", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8",
+  "E9", "E10", "E11", "V1", "V2", "V3", "V4", "V5", "V6", "V7",
+  "V8", "V9", "V10", "V11", "IsAlert"
+)
+
+#Check if all the required column names listed above exists in the data that is read, otherwise throw error
+stopifnot(all(required_names %in% names(data)))
+```
+
+**Documentation**
+
+While creating a function, it is essential to document what that
+function does and what input it takes and what to expect as an output
+from function and if possible include some examples of function usage.
+The **roxygen2** package in R converts such documentation into user
+manual which is available as function help. All you need to do is, for
+each of the function, generate a skeleton documentation and fill it will
+the required information. Once you build the package or generate the
+documentation using **roxygen2** package, **roxygen2** reads all the
+skeleton information and generates a manual for each of the function.
+This is usually what you see when you invoke function names preceded by
+a question mark (Example: ?sum)
+
+A sample documentation is shown below:
+
+``` r
+#' Histogram and Box Plots Combined
+#'
+#' @param dat The data.frame containing the data
+#' @param columnname The variable in the data.frame whose plots are required
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+#' None recorded
+hist_box_plots <- function(dat, columnname) {
+  hist(dat[, columnname], main = paste0("Histogram of ", columnname), xlab = columnname, ylab = "Frequency", col = "blue")
+  boxplot(dat[, columnname], main = paste0("Boxplot of ", columnname), xlab = columnname, col = "blue")
+}
+```
+
+**Automate unit-tests**
+
+While writing functions, a developer often tests the functions with some
+sample inputs. Record those sample tests into a function and run them
+every time someone makes a change to the function. This ensures no one
+breaks the existing functionality of the function.
+
+Sample test:
+
+``` r
+# Test to check if the data is loaded fine
+test_that("Data loading", {
+  
+  expect_true(exists("data"))
+  
+})
+```
+
+**Reproducibility**
+
+Containers are a piece of software that mimics a computer. When run on a
+physical computer, they can be thought of as a computer inside a
+computer. They can be thought of as virtual machine running on top of an
+actual machine but instead of virtualizing the hardware stack,
+containers virtualize at the operating system level, with multiple
+containers running atop the OS kernel directly. Containers offer a
+logical packaging mechanism in which applications can be abstracted from
+the environment in which they actually run. This means developers can
+focus on developing the application without worrying about the
+underlying operating system level dependencies. Containers provides
+consistent environments, runs virtually everywhere and runs in
+isolation.
+
+While **packrat** took care of all the R dependencies on other packages,
+containers takes care of other dependencies on operating systems.  
+For our project, I have created two docker images. Docker image with the
+snapshot of all the dependent packages was created first using the base
+image of rocker/studio. rocker/studio has all the necessary libraries to
+run R and RStudio IDE, on top of which I have installed all the
+dependencies required for our project. Earlier, we took a snapshot of
+all the dependent packages using `packrat::snapshot()` and used
+`packrat::restore()` to build a docker image with all our projects’ R
+dependencies installed.
+
+``` r
+# Only run this after making packrat/packrat.lock by
+# running manage_packages.R
+
+# Pull the base image that contains R and RStudio
+FROM rocker/rstudio:3.6.1
+
+# zlib is an external dependency for one of our dependent packages
+RUN apt-get update && apt-get install zlib1g-dev
+
+# Copies the packrat.lock we had generated using packrat snapshot onto docker container
+COPY ./packrat/packrat.lock packrat/
+
+# Installs packrat into docker container
+RUN install2.r packrat
+
+# Installs projects R dependencies into docker container
+RUN Rscript -e 'packrat::restore()'
+
+# Modify Rprofile.site so R loads packrat library by default
+RUN echo '.libPaths("/packrat/lib/x86_64-pc-linux-gnu/3.6.1")' >> /usr/local/lib/R/etc/Rprofile.site
+```
+
+Now we have an image onto which all our project’s R dependencies have
+been baked.
+
+Using this image as a base image, I have created another docker image
+which has our project’s code baked into it. The second image has been
+configured in GitHub continuous integration workflow to regularly update
+with our project package on each push to the repository.
+
+``` r
+# Pull the base image that contains R, RStudio and R dependencies
+FROM anujkapil/packratmanaged:1.1
+
+# Add the analysis file to the docker image
+ADD R/main.R /home/rstudio/packtest/R/
+ADD Data/fordTest.csv /home/rstudio/packtest/Data/fordTest.csv
+ADD Data/fordTrain.csv /home/rstudio/packtest/Data/fordTrain.csv
+ADD RMD/main.RMD /home/rstudio/packtest/RMD/
+ADD RMD/Data/fordTest.csv /home/rstudio/packtest/RMD/Data/fordTest.csv
+ADD RMD/Data/fordTrain.csv /home/rstudio/packtest/RMD/Data/fordTrain.csv
+ADD RMD/main.docx /home/rstudio/packtest/RMD/
+ADD RMD/main.md /home/rstudio/packtest/RMD/
+```
+
+The code for the GitHub workflow can be found
+here:  
+<https://github.com/anuj-kapil/driveralertness/blob/master/.github/workflows/dockerimage.yml>
+
+This ensures that every time there is a change to the project
+application, the docker image gets refreshed with the newly pushed
+changes. This is called continous integration.
+
+Alternate approach can be configured, using just one dockerfile, to
+manage any updates to dependent packages in our project. Let’s assume
+someone adds a dependent package in our project, then two docker images
+solution won’t work as our first Docker image is a static snapshot of
+all the dependent packages that our project needs today. This defeats
+the purpose of using **packrat** as on each build of project package,
+**packrat** takes a new snapshot of the dependent packages which isn’t
+getting updated in the project’s first Docker image. But a single docker
+image can be configured to do both the snapshot restore as well as
+latest project package on each push to the repository.
 
 Also, the GitHub actions could be configured to run the testthat tests
-on the project repository to find an issues with package.
+on the project repository to unit test the project source code.
 
-Docker
+The re-written code can be found here:  
+<https://github.com/anuj-kapil/driveralertness/blob/master/R/main.R>
+<https://github.com/anuj-kapil/driveralertness/blob/master/RMD/main.RMD>
+<https://github.com/anuj-kapil/driveralertness/blob/master/RMD/main.md>
 
-The rocker set of docker images has made it much easier to do
-reproducible data analysis with R. By using one of the rocker images, we
-can ensure that the computing software environment, R version, and
-package versions are always the same, no matter where the code is being
-run.
+The code has been re-written using R-Markdown that binds together the
+report and code, which were two separate artefacts originally.
+R-Markdown is a better approach of narrating your analysis alongwith the
+snippets of code. With dockerised version of the shareable R-Mardown
+code, any one can reproduce the same analysis.
+
+The code to run the docker container for the re-written code is:
+
+`docker run -e PASSWORD=lizard --rm -p 8787:8787
+anujkapil/driver-alertness-analysis:1.1`
+
+An attempt was made to re-write the code as an R package and deploy an
+API to validate the model. However, due to issue with R package creation
+and issue with installing the package on docker, I couldn’t reach to the
+point where an API could have been written. Well, all the code that gets
+written today, becomes a technical debt tomorrow.
