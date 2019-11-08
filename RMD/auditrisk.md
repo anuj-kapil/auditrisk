@@ -1,4 +1,4 @@
-Reproducibility and Audit Risk
+Reproducibility and Risk Audit
 ================
 
 # Executive Summary
@@ -6,7 +6,7 @@ Reproducibility and Audit Risk
 ## Objective
 
 This report contains the findings and recommendations relating to
-reproducibility issues and audit risks in a specific data analytics
+reproducibility and risk audit conducted on a specific data analytics
 project. The report also includes references to the code which has been
 partly re-written as per some of the recommendations in this report.
 
@@ -45,20 +45,20 @@ reproducibility issues and risks and excludes any recommendation on the
 appropriate methodology of model selection or model validation
 techniques.
 
-This report contains the various reproducibility/audit issues and risks
-that were found in the review process, along with a number of
-recommendations for improvements that includes using source control
-tool, following one coding style and using appropriate coding
-standards/naming conventions, implementing defensive programming and
-advantage of using software containers. An excerpt of the original code
-is also included in the report along with the recommended changes to
-code to make it reproducible and more auditable.
+This report contains the various reproducibility issues and risks that
+were found in the review process, along with a number of recommendations
+for improvements that includes using source control tool, following one
+coding style and using appropriate coding standards/naming conventions,
+implementing defensive programming and advantage of using software
+containers. An excerpt of the original code is also included in the
+report along with the recommended changes to code to make it
+reproducible and more auditable.
 
 # Introduction
 
 ## Project Introduction
 
-The project, under review, was undertaken as part of practical
+The project, under audit, was undertaken as part of practical
 work-related project experience in one of the MDSI (Master Data Science
 & Innovation) subject named Advanced Data Analytics Algorithms.
 
@@ -97,9 +97,9 @@ which was used in the analysis, supplied as an attached single R file.
 
 ## Review Approach & Scope
 
-The idea of this review exercise is to identify the reproducibility
-issues and risks that could potentially become issues for reproducing
-the analysis.
+The idea of this audit exercise is to identify the reproducibility
+issues and risks that could potentially become issues for
+reproducing/deploying the analysis.
 
 Imagine a situation, where a Data Science team came across the project
 report and found it useful enough to invest time and resources to
@@ -109,7 +109,7 @@ probably ran fine 3 years ago but is not guaranteed to run the same,
 given there is no information on the environment it was run and the
 dependencies it had at that time.
 
-The approach of this review is to simulate the analysis using the piece
+The approach of this audit is to simulate the analysis using the piece
 of given R code and identify the imminent issues with reproducibility of
 the analysis and also, in the process, to identify any key risks that
 can become reproducibility issues in the near future. That would involve
@@ -118,7 +118,7 @@ conditions/dependencies. The key idea behind this review is not only to
 reproduce the analysis but also be able to make it more maintainable and
 auditable.
 
-The scope of the review is identified the issues and risks from the
+The scope of the audit is to identify the issues and risks from the
 perspective of:
 
   - Version Control
@@ -127,7 +127,7 @@ perspective of:
   - Literate Programming
   - Code Portability
 
-The review does not make any recommendations on the appropriateness of
+The audit does not make any recommendations on the appropriateness of
 the modelling methodology or the model training or validation approach.
 
 ## Findings
@@ -221,7 +221,7 @@ execute it. A function is meant to be a reusable piece of code and
 without proper documentation, a reader will be left with no choice but
 to write their own version of function, making the existing code
 redundant. Again, this is not an immediate issue but over time it might
-pose as an audit risk and the code becoming redundant. Even though the
+pose as a risk of the code becoming redundant. Even though the
 supporting report has some form of documentation, code itself is not
 self explanatory.
 
