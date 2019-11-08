@@ -269,7 +269,7 @@ list_of_models <- c("glm", "gbm", "treebag", "ridge", "lasso", "rf", "xgbLinear"
 
 feature_selection_models <- fscaret(trainDataset, testDataset,
   myTimeLimit = 40, preprocessData = TRUE,
-  Used.funcRegPred = fsModels2, with.labels = TRUE,
+  Used.funcRegPred = list_of_models, with.labels = TRUE,
   supress.output = FALSE, no.cores = 2, installReqPckg = TRUE
 )
 ```
