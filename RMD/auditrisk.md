@@ -134,7 +134,8 @@ the modelling methodology or the model training or validation approach.
 
 Each of the findings will talk about the potential issue or risk and a
 separate section on recommendations on how to mitigate these issues and
-risks.
+risks. Examples of each of the issues/risk have been listed in the
+recommendation section.
 
 **No Source Control Tool**
 
@@ -232,29 +233,68 @@ cannot be reproduced without considerable effort.
 
 ## Recommendations
 
-  - Use source control tools like git for maintaining local repositories
-    and Github or BitBucket for maintaining remote repositories. It is
-    really easy to reproduce not only the latest code but also have the
-    ability to go back in time and restore an older version of the code.
-    These tools help in collaborating and working in a large team. These
-    tools provide reviewers/auditor with capability to compare two
-    versions and make informed decisions based on the differences. The
-    re-written code has been maintained at github:
-    <https://github.com/anuj-kapil/driveralertness>
+**Use source control**
 
-  - Adopt one style for coding and consistently use it across the code.
-    Following one set of naming conventions and avoid giving useless and
-    random names. Sample names in old code:
+Source control tools like *git* for maintaining local repositories and
+*Github* or *BitBucket* for maintaining remote repositories are highly
+recommended. It is really easy to reproduce not only the latest code but
+also have the ability to go back in time and restore an older version of
+the code. These tools help in collaborating and working in a large team.
+They provide reviewers/auditor with the capability to compare two
+versions and make informed decisions based on the differences.
 
-Sample names in new code:
+The re-written code has been maintained at github:  
+<https://github.com/anuj-kapil/driveralertness>
 
-Styler can be used to style the R code
+**Adopt one style of coding**
 
-Old Style:
+Adopt one style for coding and consistently use it across the code.
+Follow one set of naming conventions and avoid giving useless and random
+names.
 
-New Style:
+Sample names and style in old code:
 
-  - Defensive Programming
+``` r
+fsModels2 <- c("glm","gbm","treebag","ridge","lasso","rf","xgbLinear")
+myFs2<-fscaret(trainDataset, testDataset, myTimeLimit = 40, preprocessData = TRUE,
+               Used.funcRegPred = fsModels2, with.labels = TRUE,
+               supress.output=FALSE, no.cores = 2, installReqPckg = TRUE)
+```
+
+Sample names and style in new
+code:
+
+``` r
+list_of_models <- c("glm", "gbm", "treebag", "ridge", "lasso", "rf", "xgbLinear")
+
+feature_selection_models <- fscaret(trainDataset, testDataset,
+  myTimeLimit = 40, preprocessData = TRUE,
+  Used.funcRegPred = fsModels2, with.labels = TRUE,
+  supress.output = FALSE, no.cores = 2, installReqPckg = TRUE
+)
+```
+
+Styler can be used in R to style the code
+
+Old Style: (Hard to
+read)
+
+``` r
+data<-data[c("TrialID", "ObsNum", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "IsAlert")]
+```
+
+New Style: (Easy to read)
+
+``` r
+data <- data[c(
+  "TrialID", "ObsNum", "P1", "P2", "P3", "P4", "P5",
+  "P6", "P7", "P8", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8",
+  "E9", "E10", "E11", "V1", "V2", "V3", "V4", "V5", "V6", "V7",
+  "V8", "V9", "V10", "V11", "IsAlert"
+)]
+```
+
+**Defensive Programming**
 
   - Assert statement was introduced to interrupt the execution early in
     case of input inconsistencies. This helps in building a fail-fast
